@@ -1,0 +1,38 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Import CSV{% endblock %}
+
+{% block body %}
+<div class="container">
+    <h1>Import CSV</h1>
+    {% for message in app.flashes('success') %}
+        <div class="alert alert-success">{{ message }}</div>
+    {% endfor %}
+    <form method="post" enctype="multipart/form-data" id="dropzone-form">
+        <div id="dropzone" style="border: 2px dashed #ccc; padding: 30px; text-align:center;">
+            Déposez votre fichier ici ou cliquez pour sélectionner.
+            <input type="file" name="csv_file" id="file-input" style="display:none" accept="text/csv" required>
+        </div>
+        <button class="btn btn-primary mt-3">Importer</button>
+    </form>
+</div>
+<script>
+    const dropzone = document.getElementById('dropzone');
+    const fileInput = document.getElementById('file-input');
+
+    dropzone.addEventListener('click', () => fileInput.click());
+
+    dropzone.addEventListener('dragover', (e) => {
+        e.preventDefault();
+        dropzone.classList.add('bg-light');
+    });
+
+    dropzone.addEventListener('dragleave', () => dropzone.classList.remove('bg-light'));
+
+    dropzone.addEventListener('drop', (e) => {
+        e.preventDefault();
+        fileInput.files = e.dataTransfer.files;
+        dropzone.classList.remove('bg-light');
+    });
+</script>
+{% endblock %}
