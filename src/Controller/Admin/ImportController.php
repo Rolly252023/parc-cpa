@@ -20,24 +20,25 @@ use Symfony\Bundle\FrameworkBundle\Console\Application;
 use Doctrine\DBAL\Connection;
 
 
-class importController extends AbstractController
+class ImportController extends AbstractController
 {
     private $logger;
+    private $scanner;
 
-    public function __construct(LoggerInterface $logger)
+    public function __construct(LoggerInterface $logger, DirectoryScanner $scanner)
     {
         $this->logger = $logger;
+        $this->scanner = $scanner;
     }
 
     #[Route('/admin/import/csv', name: 'app_import_csv')]
     public function importCsv(
-        DirectoryScanner $scanner,
         ParameterBagInterface $params,
         Connection $conn
     ): Response {
         // 1) Récupère les fichiers dans le dossier bridge
         $dir   = $params->get('local_bridge_directory');
-        $files = $scanner->getFileDetails($dir);
+        $files = $this->scanner->getFileDetails($dir);
 
         // 2) On interroge MAX(date_import) pour chaque table
         $sql = <<<SQL

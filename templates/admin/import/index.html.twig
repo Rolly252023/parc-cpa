@@ -1,10 +1,8 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Admin Imports
-{% endblock %}
+{% block title %}Admin Imports{% endblock %}
 
 {% block body %}
-
 	<div class="container mt-5">
 		<div class="card">
 			<div class="card-header">Import de fichier CSV ou ZIP</div>
@@ -46,8 +44,14 @@
 			</tbody>
 		</table>
 	</div>
+
 	<div class="container mt-5">
-		<h2 class="mb-4">Fichiers du répertoire Bridge</h2>
+		<div class="d-flex justify-content-between align-items-center mb-4">
+			<h2>Fichiers du répertoire Bridge</h2>
+			<a href="{{ path('app_import_csv') }}" class="btn btn-primary">
+				<i class="fas fa-file-import"></i> Importer un fichier CSV
+			</a>
+		</div>
 
 		<table class="table table-striped">
 			<thead class="table-dark">
@@ -71,9 +75,6 @@
 							<a href="{{ file.downloadUrl }}" download>{{ file.name }}</a>
 						</td>
 						<td>
-							{# <button class="btn btn-info btn-sm" onclick="loadBridge('{{ file.path|e('js') }}')">
-								Importer
-							</button> #}
 							<button class="btn btn-info btn-sm" onclick="loadBridge('{{ path('import_python_bridge') }}', '{{ file.relativePath|e('js') }}')" id="btn-import-{{ loop.index }}">
 								Importer
 							</button>
@@ -91,6 +92,7 @@
 		</table>
 	</div>
 {% endblock %}
+
 {% block javascripts %}
 	<script src="{{ asset('/js/app/import.js') }}"></script>
 {% endblock %}

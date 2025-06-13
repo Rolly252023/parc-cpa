@@ -81,6 +81,10 @@ class ImportPythonBridgeCommand extends Command
             'im_ginko_pds_ddr' => 'import_ginko_pds.py',
             'im_bdp_reclamations' => 'import_reclamations.py',
             'im_gko_taches_bloquantes_en_cours_cen' => 'import_taches.py',
+            'im_meteore_dipole_source_bt' => 'import_meteore_dipole.py',
+            'im_meteore_poste_distribution_ddr' => 'import_meteore_poste_dp.py',
+            'im_sge_prestations' => 'import_sge_prestations.py',
+            'im_bdp_reclamations' => 'import_sge_reclamations.py',
             'C5_par_Poste'     => 'import_gsa.py',
             'priorisation'     => 'import_silencieux.py',
             'Capella'     => 'import_capella.py',
@@ -119,16 +123,11 @@ class ImportPythonBridgeCommand extends Command
             . DIRECTORY_SEPARATOR . 'Scripts'
             . DIRECTORY_SEPARATOR . 'python.exe';
 
-        if (file_exists($venvPython)) {
-            $pythonBinary = $venvPython;
-            $this->logger->info("Utilisation du Python du venv : $pythonBinary");
-        } else {
-            // fallback si vous n'avez pas de venv (ex. en prod)
-            $pythonBinary = '/usr/bin/python3';
-            $this->logger->warning("venv non trouvé, utilisation du 'python' global");
-        }
+        // Utilisation du Python global
+        $pythonBinary = 'python';
+        $this->logger->info("Utilisation du Python global : $pythonBinary");
 
-        // 5) variables d’environnement à passer au script
+        // 5) variables d'environnement à passer au script
         $env = [
             'DB_USER'     => $_ENV['DATABASE_USER']     ?? 'root',
             'DB_PASSWORD' => $_ENV['DATABASE_PASSWORD'] ?? '',
@@ -155,7 +154,7 @@ class ImportPythonBridgeCommand extends Command
         $io->info("start");
         // 6) exécution
         $process = new Process(
-            [$pythonBinary, $pythonScriptPath, $filePath],
+            $args,
             // on fixe le cwd au projet pour les imports relatifs
             $this->projectDir,
             $env
@@ -175,9 +174,10 @@ class ImportPythonBridgeCommand extends Command
             return Command::FAILURE;
         }
 
-        // 1) Log du succès
+        // Log du succès avec la sortie complète
         $this->logger->info('Script Python terminé avec succès', [
-            'output' => $process->getOutput()
+            'output' => $process->getOutput(),
+            'error' => $process->getErrorOutput()
         ]);
         $io->success('Import terminé : ' . $process->getOutput());
 
@@ -190,7 +190,7 @@ class ImportPythonBridgeCommand extends Command
                     $this->logger->info("Fichier bridge supprimé : $filePath");
                 }
             } catch (\Exception $e) {
-                // en cas d’erreur de suppression, on log simplement
+                // en cas d'erreur de suppression, on log simplement
                 $this->logger->warning(
                     "Impossible de supprimer le fichier après import : {$filePath}",
                     ['exception' => $e->getMessage()]

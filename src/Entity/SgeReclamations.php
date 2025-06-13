@@ -92,7 +92,7 @@ class SgeReclamations
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $libelle_motif_demande = null;
 
-    #[ORM\Column(length: 255, nullable: true)]
+    #[ORM\Column(type: Types::TEXT, nullable: true)]
     private ?string $description_reclamation = null;
 
     #[ORM\Column(length: 255, nullable: true)]
