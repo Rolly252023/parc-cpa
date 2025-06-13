@@ -1,0 +1,96 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Admin Imports
+{% endblock %}
+
+{% block body %}
+
+	<div class="container mt-5">
+		<div class="card">
+			<div class="card-header">Import de fichier CSV ou ZIP</div>
+			<div class="card-body">
+				<form id="upload-form" enctype="multipart/form-data" method="POST">
+					<div class="mb-3">
+						<label for="file" class="form-label">Choisir un fichier</label>
+						<input class="form-control" type="file" name="file" id="file">
+					</div>
+					<button type="submit" class="btn btn-primary">Uploader & Importer</button>
+				</form>
+				<div id="upload-result" class="mt-3"></div>
+			</div>
+		</div>
+	</div>
+
+	<div class="container mt-5">
+		<h2 class="mb-4">Dernière import</h2>
+		<table class="table table-striped">
+			<thead class="table-secondary">
+				<tr>
+					<th>Table</th>
+					<th>Dernière date d'import</th>
+				</tr>
+			</thead>
+			<tbody>
+				{% for row in lastImports %}
+					<tr>
+						<td>{{ row.table_name }}</td>
+						<td>
+							{% if row.last_import %}
+								{{ row.last_import|date('d/m/Y H:i:s') }}
+							{% else %}
+								&mdash;
+							{% endif %}
+						</td>
+					</tr>
+				{% endfor %}
+			</tbody>
+		</table>
+	</div>
+	<div class="container mt-5">
+		<h2 class="mb-4">Fichiers du répertoire Bridge</h2>
+
+		<table class="table table-striped">
+			<thead class="table-dark">
+				<tr>
+					<th>Nom</th>
+					<th>Taille (Ko)</th>
+					<th>Date de modification</th>
+					<th>Chemin relatif</th>
+					<th>Téléchargement</th>
+					<th>Action</th>
+				</tr>
+			</thead>
+			<tbody>
+				{% for file in files %}
+					<tr id="file-row-{{ loop.index }}">
+						<td>{{ file.name }}</td>
+						<td>{{ (file.size / 1024)|number_format(2, '.', ' ') }}</td>
+						<td>{{ file.date|date('d/m/Y H:i') }}</td>
+						<td>{{ file.relativePath }}</td>
+						<td>
+							<a href="{{ file.downloadUrl }}" download>{{ file.name }}</a>
+						</td>
+						<td>
+							{# <button class="btn btn-info btn-sm" onclick="loadBridge('{{ file.path|e('js') }}')">
+								Importer
+							</button> #}
+							<button class="btn btn-info btn-sm" onclick="loadBridge('{{ path('import_python_bridge') }}', '{{ file.relativePath|e('js') }}')" id="btn-import-{{ loop.index }}">
+								Importer
+							</button>
+							<button class="btn btn-danger btn-sm" onclick="deleteFile('{{ file.path|e('js') }}', {{ loop.index }})">
+								Supprimer
+							</button>
+						</td>
+					</tr>
+				{% else %}
+					<tr>
+						<td colspan="5" class="text-center">Aucun fichier trouvé.</td>
+					</tr>
+				{% endfor %}
+			</tbody>
+		</table>
+	</div>
+{% endblock %}
+{% block javascripts %}
+	<script src="{{ asset('/js/app/import.js') }}"></script>
+{% endblock %}
